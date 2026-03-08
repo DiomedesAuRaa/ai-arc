@@ -1,0 +1,27 @@
+name: Sync AI Rules
+
+on:
+  push:
+    paths:
+      - ".ai/canonical/**"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run sync script
+        run: python3 .ai/scripts/sync-rules.py
+
+      - name: Commit generated files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: sync AI rules from canonical"
+          file_pattern: |
+            .ai/claude/CLAUDE.md
+            .ai/cursor/.cursorrules
+            .ai/cursor/rules/*.mdc
+            .github/copilot-instructions.md
+

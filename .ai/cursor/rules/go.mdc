@@ -1,0 +1,11 @@
+---
+description: Go rules
+globs: **/*.go
+alwaysApply: false
+---
+
+
+- Explicit error handling only, no panic in library code
+- Context must be first arg on all functions touching IO
+- All exported functions require godoc
+

@@ -1,0 +1,11 @@
+---
+description: Terraform rules
+globs: **/*.tf,**/*.tfvars
+alwaysApply: false
+---
+
+
+- All resources must have a `tags` block with at minimum: env, team, managed-by
+- Use `for_each` over `count` for resources that may be selectively removed
+- Remote state references must use `terraform_remote_state` data sources
+
