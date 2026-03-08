@@ -1,0 +1,543 @@
+================================================================================
+AI AGENT ALLOWED COMMANDS — NON-DESTRUCTIVE OPERATIONS
+================================================================================
+This file defines the exhaustive list of commands that AI agents (Claude, Cursor,
+Copilot) are permitted to suggest and execute autonomously. All commands must be
+non-destructive: they must not change configuration, delete resources, or apply
+writes against production data. Commands may update local tool state (e.g.,
+Terraform plans, kubeconfig updates) and may generate logs/metrics on remote
+systems, but must not perform irreversible or destructive actions.
+
+Agents MUST NOT execute any command not listed here without explicit human
+confirmation. When in doubt, propose the command and wait for approval.
+================================================================================
+
+
+--------------------------------------------------------------------------------
+KUBERNETES (kubectl)
+--------------------------------------------------------------------------------
+kubectl get
+kubectl describe
+kubectl logs
+kubectl logs --previous
+kubectl logs --follow
+kubectl top nodes
+kubectl top pods
+kubectl api-resources
+kubectl api-versions
+kubectl explain
+kubectl cluster-info
+kubectl config view
+kubectl config get-contexts
+kubectl config current-context
+kubectl auth can-i --list
+
+
+--------------------------------------------------------------------------------
+HELM
+--------------------------------------------------------------------------------
+helm list
+helm list --all-namespaces
+helm status
+helm get values
+helm get manifest
+helm get hooks
+helm get notes
+helm get all
+helm history
+helm show chart
+helm show values
+helm show readme
+helm show all
+helm template          # local render only — no cluster writes
+helm search repo
+helm search hub
+helm env
+helm version
+
+
+--------------------------------------------------------------------------------
+TERRAFORM / OPENTOFU
+--------------------------------------------------------------------------------
+terraform plan         # read intent; does not apply
+terraform show
+terraform state list
+terraform state show
+terraform output
+terraform validate     # local only
+terraform version
+terraform providers
+terraform graph        # read dependency graph
+tofu plan
+tofu show
+tofu state list
+tofu state show
+tofu output
+tofu validate
+tofu version
+
+
+--------------------------------------------------------------------------------
+GIT
+--------------------------------------------------------------------------------
+git log
+git log --oneline
+git log --graph
+git status
+git diff
+git diff --staged
+git show
+git branch
+git branch -r
+git branch -a
+git remote -v
+git remote show
+git stash list
+git tag
+git describe
+git rev-parse
+git shortlog
+git blame
+git ls-files
+git check-ignore
+
+
+--------------------------------------------------------------------------------
+GITHUB CLI (gh)
+--------------------------------------------------------------------------------
+gh repo view
+gh repo list
+gh issue list
+gh issue view
+gh issue status
+gh pr list
+gh pr view
+gh pr status
+gh pr diff
+gh pr checks
+gh run list
+gh run view
+gh run watch           # view only — does not trigger
+gh workflow list
+gh workflow view
+gh release list
+gh release view
+gh api                 # GET requests only — no POST/PUT/DELETE/PATCH
+gh secret list         # lists names only, never values
+gh variable list
+gh label list
+gh milestone list
+gh repo deploy-key list
+gh repo collaborator list
+gh org list
+gh org view
+gh gist list
+gh gist view
+gh status
+gh auth status
+
+
+--------------------------------------------------------------------------------
+AWS CLI (read-only operations)
+--------------------------------------------------------------------------------
+# General pattern: aws <service> describe-* | list-* | get-* | view-*
+
+# EC2
+aws ec2 describe-instances
+aws ec2 describe-security-groups
+aws ec2 describe-vpcs
+aws ec2 describe-subnets
+aws ec2 describe-route-tables
+aws ec2 describe-images
+aws ec2 describe-volumes
+aws ec2 describe-snapshots
+aws ec2 describe-key-pairs
+aws ec2 describe-load-balancers
+aws ec2 describe-auto-scaling-groups
+aws ec2 describe-launch-templates
+aws ec2 describe-availability-zones
+aws ec2 describe-regions
+
+# IAM
+aws iam list-users
+aws iam list-roles
+aws iam list-policies
+aws iam list-groups
+aws iam get-user
+aws iam get-role
+aws iam get-policy
+aws iam get-policy-version
+aws iam list-attached-role-policies
+aws iam list-role-policies
+aws iam get-account-summary
+aws iam generate-credential-report   # read-only intent
+aws iam get-credential-report
+
+# S3
+aws s3 ls
+aws s3api list-buckets
+aws s3api list-objects
+aws s3api list-objects-v2
+aws s3api get-bucket-policy
+aws s3api get-bucket-acl
+aws s3api get-bucket-versioning
+aws s3api get-bucket-location
+aws s3api get-bucket-encryption
+aws s3api get-bucket-tagging
+aws s3api head-bucket
+aws s3api head-object
+
+# EKS
+aws eks list-clusters
+aws eks describe-cluster
+aws eks list-nodegroups
+aws eks describe-nodegroup
+aws eks list-addons
+aws eks describe-addon
+
+# RDS
+aws rds describe-db-instances
+aws rds describe-db-clusters
+aws rds describe-db-snapshots
+aws rds describe-db-subnet-groups
+aws rds describe-db-parameter-groups
+
+# CloudWatch
+aws cloudwatch list-metrics
+aws cloudwatch get-metric-statistics
+aws cloudwatch describe-alarms
+aws cloudwatch list-dashboards
+aws logs describe-log-groups
+aws logs describe-log-streams
+aws logs get-log-events
+aws logs filter-log-events
+
+# SSM / Secrets (names/metadata only — never secret values)
+aws ssm describe-parameters
+aws ssm list-documents
+aws secretsmanager list-secrets
+aws secretsmanager describe-secret
+
+# Misc
+aws sts get-caller-identity
+aws account get-contact-information
+aws organizations list-accounts
+aws organizations describe-organization
+aws route53 list-hosted-zones
+aws route53 list-resource-record-sets
+aws elb describe-load-balancers
+aws elbv2 describe-load-balancers
+aws elbv2 describe-target-groups
+aws lambda list-functions
+aws lambda get-function
+aws lambda list-aliases
+aws cloudformation list-stacks
+aws cloudformation describe-stacks
+aws cloudformation describe-stack-resources
+aws cloudformation get-template         # read only
+aws ecr describe-repositories
+aws ecr list-images
+aws ecr describe-images
+
+
+--------------------------------------------------------------------------------
+GCP (gcloud / gsutil)
+--------------------------------------------------------------------------------
+gcloud projects list
+gcloud projects describe
+gcloud config list
+gcloud config configurations list
+gcloud auth list
+gcloud compute instances list
+gcloud compute instances describe
+gcloud compute networks list
+gcloud compute networks describe
+gcloud compute firewall-rules list
+gcloud compute firewall-rules describe
+gcloud compute disks list
+gcloud compute images list
+gcloud compute forwarding-rules list
+gcloud container clusters list
+gcloud container clusters describe
+gcloud container node-pools list
+gcloud container node-pools describe
+gcloud iam roles list
+gcloud iam service-accounts list
+gcloud iam service-accounts describe
+gcloud projects get-iam-policy
+gcloud storage ls
+gcloud storage objects list
+gsutil ls
+gsutil stat
+gsutil cat                              # small objects only, non-destructive
+gcloud logging read
+gcloud logging logs list
+gcloud logging sinks list
+gcloud monitoring dashboards list
+gcloud secrets list
+gcloud secrets describe                 # metadata only — not secret values
+gcloud dns managed-zones list
+gcloud dns record-sets list
+gcloud sql instances list
+gcloud sql instances describe
+gcloud sql databases list
+gcloud functions list
+gcloud functions describe
+gcloud run services list
+gcloud run services describe
+gcloud pubsub topics list
+gcloud pubsub subscriptions list
+
+
+--------------------------------------------------------------------------------
+AZURE CLI (az)
+--------------------------------------------------------------------------------
+az account list
+az account show
+az account get-access-token            # read; used for auth introspection
+az group list
+az group show
+az resource list
+az resource show
+az vm list
+az vm show
+az vm get-instance-view
+az network vnet list
+az network vnet show
+az network nsg list
+az network nsg show
+az network public-ip list
+az network lb list
+az network lb show
+az aks list
+az aks show
+az aks get-credentials                 # reads kubeconfig — no cluster writes
+az aks nodepool list
+az storage account list
+az storage account show
+az storage container list
+az storage blob list
+az keyvault list
+az keyvault show
+az keyvault secret list                # names/metadata only — not secret values
+az keyvault key list
+az monitor log-analytics workspace list
+az monitor log-analytics query         # read query
+az monitor metrics list
+az monitor activity-log list
+az role definition list
+az role assignment list
+az ad user list
+az ad group list
+az ad sp list
+az acr list
+az acr show
+az acr repository list
+az sql server list
+az sql db list
+az functionapp list
+az webapp list
+az containerapp list
+
+
+--------------------------------------------------------------------------------
+DOCKER
+--------------------------------------------------------------------------------
+docker ps
+docker ps -a
+docker images
+docker inspect
+docker logs
+docker logs --follow
+docker stats                           # live read — no writes
+docker top
+docker diff                            # shows filesystem changes, read-only
+docker history
+docker info
+docker version
+docker system df
+docker network ls
+docker network inspect
+docker volume ls
+docker volume inspect
+
+
+--------------------------------------------------------------------------------
+NETWORK DIAGNOSTICS
+--------------------------------------------------------------------------------
+ping
+ping6
+traceroute
+tracepath
+mtr
+nslookup
+dig
+dig +short
+dig +trace
+host
+whois
+curl -X GET                            # GET only — no POST/PUT/DELETE/PATCH
+curl --head                            # HEAD requests only
+curl -I
+wget --spider                          # HEAD/check only — no download writes
+ss
+ss -tulpn
+netstat
+netstat -tulpn
+ip addr
+ip route
+ip link
+ip neigh
+ifconfig
+nmap -sn                               # ping scan only — no port exploit
+tcpdump -r                             # read from file only, not live capture
+openssl s_client                       # TLS inspection
+openssl x509 -text                     # cert inspection
+openssl verify
+
+
+--------------------------------------------------------------------------------
+FILESYSTEM & SYSTEM INSPECTION
+--------------------------------------------------------------------------------
+ls
+ls -la
+ll
+pwd
+cd
+find . -name "..."                      # name match only
+find . -type f                         # type filter only
+find . -name "..." -type f             # combined name+type
+find . -maxdepth N                     # depth-limited variants of the above
+# find FLAGS THAT ARE NEVER ALLOWED: -delete, -exec, -execdir, -ok, -okdir
+stat
+file
+du
+du -sh
+df
+df -h
+tree
+cat
+head
+tail
+tail -f                                # follow — read only
+less
+more
+wc
+wc -l
+grep
+grep -r
+grep -E
+awk                                    # read/parse only — no write redirects
+# sed: see RULES section — restricted patterns only; not a blanket allow
+jq                                     # parse/query only
+yq                                     # parse/query only
+diff
+colordiff
+sort
+uniq
+cut
+tr
+
+
+--------------------------------------------------------------------------------
+PROCESS & SYSTEM OBSERVABILITY
+--------------------------------------------------------------------------------
+ps
+ps aux
+ps -ef
+top
+htop
+atop
+uptime
+uname -a
+uname -r
+hostname
+lscpu
+lsmem
+lsblk
+lsof
+lsof -i
+free
+free -h
+vmstat
+iostat
+mpstat
+sar                                    # read historical data only
+dmesg                                  # read kernel log
+journalctl                             # read logs — no writes
+journalctl -u
+journalctl --since
+journalctl --follow
+systemctl status
+systemctl list-units
+systemctl list-unit-files
+env
+printenv
+which
+whereis
+type
+id
+whoami
+groups
+last
+lastlog
+w
+who
+
+
+--------------------------------------------------------------------------------
+PACKAGE / DEPENDENCY INSPECTION (read-only)
+--------------------------------------------------------------------------------
+pip list
+pip show
+pip check
+pip index versions
+npm list
+npm outdated
+npm audit                              # read security scan
+yarn list
+yarn outdated
+go list
+go version
+go env
+brew list
+brew info
+brew outdated
+apt list --installed
+dpkg -l
+rpm -qa
+snap list
+
+
+================================================================================
+RULES FOR AI AGENTS
+================================================================================
+1. Only suggest or execute commands from the above list.
+2. Never chain a read command into a write (e.g., no `> file`, `>> file`).
+3. Never pipe into any command not on this allow list.
+4. Never use sudo unless the command is explicitly non-destructive and the agent
+   has been granted explicit human approval for that specific invocation.
+5. For `gh api`: only construct GET requests. Never infer POST/PUT/PATCH/DELETE.
+6. For `curl`: always require explicit `-X GET` or `--head`/`-I`. Reject any
+   curl invocation without an explicit method — bare `curl <url>` with a body
+   defaults to POST.
+7. For `sed`: only allow the pattern `sed -n '<addr>p'` or `sed -n '<addr>s/.../p'`.
+   The `-i` flag is never allowed under any circumstances. If the intent can be
+   achieved with `grep` or `awk`, prefer those — they have no write mode at all.
+8. For `find`: only the explicit patterns listed above are permitted. The flags
+   `-delete`, `-exec`, `-execdir`, `-ok`, and `-okdir` are never allowed, even
+   when the downstream command appears safe. `find` must not be used as a
+   command compositor.
+9. `xargs` is not on the allow list and must never be used. It is a command
+   execution primitive that cannot be safely constrained to read-only via
+   prompt instructions alone.
+10. `tee` is not on the allow list and must never be used. `tee` always writes
+    to a file descriptor; there is no read-only invocation.
+11. For `aws`, `gcloud`, `az`: if a subcommand is not explicitly listed above,
+    treat it as unapproved and ask for human confirmation before executing.
+12. Secret values should not be printed, logged, or surfaced unless the human
+    explicitly requests them for a specific debugging or integration task. Even
+    then, they must never be copied into long-lived logs or external systems.
+13. When uncertain whether a command or flag combination is non-destructive, do
+    not execute — propose it and wait for explicit human confirmation.
+================================================================================
